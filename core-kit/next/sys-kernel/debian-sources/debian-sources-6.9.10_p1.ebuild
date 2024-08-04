@@ -242,8 +242,14 @@ src_prepare() {
 	make -s mrproper || die "make mrproper failed"
 
 	# copy Genkernel cache from host into WORKDIR
-	use genkernel && mkdir "${WORKDIR}/genkernel-cache" &&
-		cp -av /var/cache/genkernel/* "${WORKDIR}/genkernel-cache"
+	# the cache only exists after the first Genkernel run
+	if use genkernel; then
+		if [[ -d "/var/cache/genkernel" ]]; then
+			mkdir "${WORKDIR}/genkernel-cache" || die
+			cp -av /var/cache/genkernel/* "${WORKDIR}/genkernel-cache" || \
+				die "couldn't copy genkernel cache"
+		fi
+	fi
 }
 
 src_compile() {
